@@ -3,10 +3,11 @@ import CameraCapture from '../components/CameraCapture';
 import ImageUploader from '../components/ImageUploader';
 import EmotionResult from '../components/EmotionResult';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { predictEmotion } from '../services/api'; // PASTIKAN IMPORT INI DITAMBAHKAN
+import { predictEmotion } from '../services/api';
 
 const HomePage = () => {
-  const [activeTab, setActiveTab] = useState('camera');
+  // Default active tab jadi 'upload'
+  const [activeTab, setActiveTab] = useState('upload');
   const [imageSrc, setImageSrc] = useState(null);
   const [emotionData, setEmotionData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +20,7 @@ const HomePage = () => {
   const handlePrediction = async (imageData) => {
     setIsLoading(true);
     try {
-      const data = await predictEmotion(imageData); // Sekarang fungsi sudah terdefinisi
+      const data = await predictEmotion(imageData);
       setEmotionData(data);
     } catch (error) {
       console.error('Prediction error:', error);
@@ -54,31 +55,38 @@ const HomePage = () => {
 
         <div className="p-6">
           {activeTab === 'camera' ? (
-            <CameraCapture 
-              onCapture={handleImageCapture} 
-              onPredict={handlePrediction}
-            />
+            <>
+              <CameraCapture
+                onCapture={handleImageCapture}
+                onPredict={handlePrediction}
+                disableCapture={true} // Kirim prop untuk disable tombol
+              />
+              {/* Keterangan pengembangan */}
+              <p className="mt-4 text-sm text-yellow-600 font-semibold text-center">
+                ⚠️ Fitur ambil foto masih dalam tahap pengembangan
+              </p>
+            </>
           ) : (
-            <ImageUploader 
-              onUpload={handleImageCapture} 
+            <ImageUploader
+              onUpload={handleImageCapture}
               onPredict={handlePrediction}
             />
           )}
-          
+
           {isLoading && <LoadingSpinner />}
-          
+
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
             {imageSrc && (
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="text-lg font-medium mb-2">Preview Gambar</h3>
-                <img 
-                  src={imageSrc} 
-                  alt="Preview" 
+                <img
+                  src={imageSrc}
+                  alt="Preview"
                   className="w-full h-64 object-contain border rounded-lg"
                 />
               </div>
             )}
-            
+
             <EmotionResult data={emotionData} />
           </div>
         </div>
